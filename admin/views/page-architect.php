@@ -16,7 +16,7 @@ $model_id        = $edit_model['id'] ?? '';
 	<div class="aica-app-shell">
 		<aside class="aica-sidebar" aria-label="<?php echo esc_attr__( 'AI Content Architect navigation', 'ai-content-architect' ); ?>">
 			<div class="aica-brand">
-				<span class="aica-brand-mark">AI</span>
+				<span class="aica-brand-mark"><img src="<?php echo esc_url( AICA_URL . 'admin/images/ai-logo.png' ); ?>" alt="<?php echo esc_attr__( 'AI Content Architect', 'ai-content-architect' ); ?>"></span>
 				<div>
 					<strong><?php esc_html_e( 'Content Architect', 'ai-content-architect' ); ?></strong>
 					<span><?php esc_html_e( 'Model builder', 'ai-content-architect' ); ?></span>

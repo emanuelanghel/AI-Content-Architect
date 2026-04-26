@@ -54,16 +54,22 @@
 
 .aica-brand-mark {
 	align-items: center;
-	background: linear-gradient(135deg, var(--aica-primary), var(--aica-teal));
+	background: #fff;
 	border-radius: 14px;
-	box-shadow: 0 12px 22px rgba(37, 99, 235, .2);
-	color: #fff;
+	box-shadow: 0 12px 22px rgba(37, 99, 235, .14);
 	display: inline-flex;
-	font-weight: 800;
 	height: 44px;
 	justify-content: center;
-	letter-spacing: .02em;
+	overflow: hidden;
+	padding: 5px;
 	min-width: 44px;
+}
+
+.aica-brand-mark img {
+	display: block;
+	height: 100%;
+	object-fit: contain;
+	width: 100%;
 }
 
 .aica-brand strong,
