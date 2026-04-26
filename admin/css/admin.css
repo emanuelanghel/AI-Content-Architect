@@ -1,0 +1,607 @@
+:root {
+	--aica-bg: #f8fafc;
+	--aica-panel: #ffffff;
+	--aica-sidebar: #ffffff;
+	--aica-border: #e2e8f0;
+	--aica-border-strong: #cbd5e1;
+	--aica-ink: #0f172a;
+	--aica-muted: #64748b;
+	--aica-soft: #f1f5f9;
+	--aica-primary: #2563eb;
+	--aica-primary-strong: #1d4ed8;
+	--aica-teal: #14b8a6;
+	--aica-warn: #a16207;
+	--aica-warn-soft: #fef9c3;
+	--aica-danger: #dc2626;
+	--aica-shadow: 0 18px 40px rgba(15, 23, 42, .08);
+}
+
+.aica-wrap {
+	background: var(--aica-bg);
+	color: var(--aica-ink);
+	font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+	margin-top: 18px;
+	max-width: 1360px;
+	padding: 0;
+}
+
+.aica-app-shell {
+	background: var(--aica-panel);
+	border: 1px solid var(--aica-border);
+	border-radius: 18px;
+	box-shadow: var(--aica-shadow);
+	display: grid;
+	grid-template-columns: 260px minmax(0, 1fr);
+	min-height: 720px;
+	overflow: hidden;
+}
+
+.aica-sidebar {
+	background: linear-gradient(180deg, #ffffff, #f8fafc);
+	border-right: 1px solid var(--aica-border);
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+	padding: 22px 16px;
+}
+
+.aica-brand {
+	align-items: center;
+	display: flex;
+	gap: 12px;
+	min-width: 0;
+}
+
+.aica-brand-mark {
+	align-items: center;
+	background: linear-gradient(135deg, var(--aica-primary), var(--aica-teal));
+	border-radius: 14px;
+	box-shadow: 0 12px 22px rgba(37, 99, 235, .2);
+	color: #fff;
+	display: inline-flex;
+	font-weight: 800;
+	height: 44px;
+	justify-content: center;
+	letter-spacing: .02em;
+	min-width: 44px;
+}
+
+.aica-brand strong,
+.aica-brand span {
+	display: block;
+}
+
+.aica-brand strong {
+	color: var(--aica-ink);
+	font-size: 15px;
+	line-height: 1.2;
+}
+
+.aica-brand span {
+	color: var(--aica-muted);
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+.aica-side-nav {
+	display: grid;
+	gap: 6px;
+}
+
+.aica-side-nav a {
+	align-items: center;
+	border-radius: 12px;
+	color: #475569;
+	display: flex;
+	font-weight: 700;
+	gap: 10px;
+	padding: 11px 12px;
+	text-decoration: none;
+	transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.aica-side-nav a:hover,
+.aica-side-nav a:focus,
+.aica-side-nav a.is-active {
+	background: #0f172a;
+	color: #fff;
+	outline: none;
+	transform: translateX(2px);
+}
+
+.aica-side-nav .dashicons {
+	font-size: 18px;
+	height: 18px;
+	width: 18px;
+}
+
+.aica-sidebar-note {
+	background: #f8fafc;
+	border: 1px solid var(--aica-border);
+	border-radius: 14px;
+	margin-top: auto;
+	padding: 14px;
+}
+
+.aica-sidebar-note strong,
+.aica-sidebar-note span {
+	display: block;
+}
+
+.aica-sidebar-note strong {
+	color: var(--aica-ink);
+	font-size: 13px;
+	margin-bottom: 5px;
+}
+
+.aica-sidebar-note span {
+	color: var(--aica-muted);
+	font-size: 12px;
+	line-height: 1.45;
+}
+
+.aica-main-panel {
+	background: linear-gradient(180deg, #ffffff, #f8fafc);
+	min-width: 0;
+	padding: 28px;
+}
+
+.aica-page-header {
+	align-items: flex-start;
+	display: flex;
+	gap: 18px;
+	justify-content: space-between;
+	margin: 0 0 22px;
+}
+
+.aica-page-header h1 {
+	color: var(--aica-ink);
+	font-size: 30px;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.aica-kicker {
+	color: var(--aica-primary);
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: .08em;
+	margin: 0 0 6px;
+	text-transform: uppercase;
+}
+
+.aica-muted,
+.aica-page-header .description,
+.aica-section-heading p,
+.aica-card .description {
+	color: var(--aica-muted);
+}
+
+.aica-header-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aica-builder-panel {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: minmax(0, 1fr) 300px;
+	margin: 18px 0;
+}
+
+.aica-panel,
+.aica-card,
+.aica-prompt-panel,
+.aica-flow-panel,
+.aica-empty-state {
+	background: var(--aica-panel);
+	border: 1px solid var(--aica-border);
+	border-radius: 16px;
+	box-shadow: 0 10px 24px rgba(15, 23, 42, .04);
+	box-sizing: border-box;
+	margin: 18px 0;
+	padding: 18px;
+}
+
+.aica-builder-panel .aica-prompt-panel,
+.aica-builder-panel .aica-flow-panel {
+	margin: 0;
+}
+
+.aica-flow-panel {
+	background: #f8fafc;
+}
+
+.aica-flow-panel h2,
+.aica-card h3 {
+	margin-top: 0;
+}
+
+.aica-flow-panel ol {
+	color: #334155;
+	margin-left: 20px;
+}
+
+.aica-mini-kpis,
+.aica-review-summary {
+	display: grid;
+	gap: 10px;
+}
+
+.aica-mini-kpis {
+	grid-template-columns: 1fr 1fr;
+	margin: 12px 0;
+}
+
+.aica-review-summary {
+	grid-template-columns: repeat(4, minmax(120px, 1fr));
+	margin: 16px 0;
+}
+
+.aica-mini-kpis div,
+.aica-review-summary div {
+	background: #fff;
+	border: 1px solid var(--aica-border);
+	border-radius: 14px;
+	padding: 12px;
+}
+
+.aica-mini-kpis strong,
+.aica-review-summary span {
+	color: var(--aica-muted);
+	display: block;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+.aica-mini-kpis span,
+.aica-review-summary strong {
+	color: var(--aica-ink);
+	display: block;
+	font-size: 22px;
+	font-weight: 800;
+	line-height: 1;
+	margin-top: 6px;
+}
+
+.aica-review-summary .has-warning {
+	background: var(--aica-warn-soft);
+	border-color: #fde68a;
+}
+
+.aica-section-heading {
+	align-items: flex-start;
+	display: flex;
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+.aica-section-heading h2 {
+	margin: 0 0 4px;
+}
+
+.aica-section-heading p {
+	margin: 0;
+}
+
+.aica-step {
+	align-items: center;
+	background: var(--aica-soft);
+	border: 1px solid var(--aica-border);
+	border-radius: 12px;
+	color: var(--aica-primary);
+	display: inline-flex;
+	font-weight: 800;
+	height: 34px;
+	justify-content: center;
+	line-height: 1;
+	min-width: 34px;
+}
+
+.aica-prompt {
+	background: #fff;
+	border-radius: 14px;
+	border-color: var(--aica-border-strong);
+	font-size: 15px;
+	min-height: 190px;
+	padding: 12px;
+}
+
+.aica-generate-row {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.aica-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.aica-subcard {
+	background: #f8fafc;
+	border: 1px solid var(--aica-border);
+	border-radius: 14px;
+	margin-top: 14px;
+	padding: 14px;
+}
+
+.aica-card label,
+.aica-subcard label {
+	display: block;
+	font-weight: 700;
+	margin: 10px 0;
+}
+
+.aica-card input:not([type="checkbox"]):not([type="radio"]),
+.aica-card select,
+.aica-card textarea,
+.aica-wrap .form-table input[type="text"],
+.aica-wrap .form-table input[type="password"],
+.aica-wrap .form-table input[type="url"],
+.aica-wrap .form-table select {
+	background: #fff;
+	border-color: var(--aica-border-strong);
+	border-radius: 12px;
+	display: block;
+	margin-top: 4px;
+	max-width: 100%;
+	min-height: 38px;
+	width: 100%;
+}
+
+.aica-examples {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 14px;
+}
+
+.aica-example-chip,
+.aica-review-nav a,
+.aica-status-badge {
+	border-radius: 999px;
+	display: inline-flex;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.aica-example-chip {
+	background: #fff;
+	border: 1px solid var(--aica-border);
+	color: #334155;
+	cursor: pointer;
+	font-weight: 700;
+	padding: 8px 12px;
+}
+
+.aica-example-chip:hover,
+.aica-example-chip:focus {
+	background: #eff6ff;
+	border-color: #bfdbfe;
+	color: var(--aica-primary);
+	outline: none;
+}
+
+.aica-review-nav {
+	background: #fff;
+	border: 1px solid var(--aica-border);
+	border-radius: 16px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 14px 0;
+	padding: 10px;
+	position: sticky;
+	top: 32px;
+	z-index: 2;
+}
+
+.aica-review-nav a {
+	background: #f8fafc;
+	color: #334155;
+	font-weight: 700;
+	padding: 9px 13px;
+}
+
+.aica-review-nav a:hover,
+.aica-review-nav a:focus {
+	background: #0f172a;
+	color: #fff;
+	outline: none;
+}
+
+.aica-checks {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 16px;
+	margin: 10px 0;
+}
+
+.aica-checks label {
+	font-weight: 500;
+	margin: 0;
+}
+
+.aica-warnings {
+	background: var(--aica-warn-soft);
+	border-left: 4px solid var(--aica-warn);
+	border-radius: 12px;
+	margin: 14px 0;
+	padding: 10px 14px;
+}
+
+.aica-sticky-actions {
+	align-items: center;
+	background: rgba(255, 255, 255, .96);
+	border: 1px solid var(--aica-border);
+	border-radius: 16px;
+	bottom: 18px;
+	box-shadow: var(--aica-shadow);
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	margin-top: 20px;
+	padding: 14px 16px;
+	position: sticky;
+	z-index: 3;
+}
+
+.aica-sticky-actions span {
+	color: var(--aica-muted);
+	display: block;
+	margin-top: 3px;
+}
+
+.aica-actions,
+.aica-row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+}
+
+.aica-hidden-json,
+.aica-row-config {
+	display: none;
+}
+
+.aica-table-scroll {
+	border: 1px solid var(--aica-border);
+	border-radius: 16px;
+	overflow-x: auto;
+}
+
+.aica-models-table {
+	border: 0;
+	min-width: 900px;
+}
+
+.aica-models-table thead th,
+.aica-card .widefat thead th {
+	background: #f8fafc;
+	color: #475569;
+	font-size: 12px;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+}
+
+.aica-status-badge {
+	font-size: 12px;
+	font-weight: 800;
+	padding: 7px 10px;
+	text-transform: capitalize;
+}
+
+.aica-status-applied {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.aica-status-draft {
+	background: #dbeafe;
+	color: #1d4ed8;
+}
+
+.aica-status-disabled {
+	background: #f1f5f9;
+	color: #64748b;
+}
+
+.aica-empty-state {
+	padding: 38px;
+	text-align: center;
+}
+
+.aica-meta-fields .aica-field {
+	margin: 0 0 16px;
+}
+
+.aica-choice {
+	display: inline-block;
+	margin-right: 12px;
+}
+
+.aica-wrap .button {
+	border-radius: 10px;
+	min-height: 34px;
+}
+
+.aica-wrap .button-primary {
+	background: var(--aica-primary);
+	border-color: var(--aica-primary);
+	font-weight: 700;
+}
+
+.aica-wrap .button-primary:hover,
+.aica-wrap .button-primary:focus {
+	background: var(--aica-primary-strong);
+	border-color: var(--aica-primary-strong);
+}
+
+.aica-wrap .button.is-busy,
+.aica-wrap .button:disabled {
+	cursor: progress;
+	opacity: .72;
+}
+
+.aica-wrap input:focus,
+.aica-wrap textarea:focus,
+.aica-wrap select:focus,
+.aica-example-chip:focus {
+	border-color: var(--aica-primary);
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, .18);
+}
+
+.aica-wrap .notice {
+	border-radius: 12px;
+	box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+	margin: 14px 0;
+}
+
+@media (max-width: 1100px) {
+	.aica-app-shell {
+		grid-template-columns: 1fr;
+	}
+
+	.aica-sidebar {
+		border-bottom: 1px solid var(--aica-border);
+		border-right: 0;
+	}
+
+	.aica-side-nav {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.aica-sidebar-note {
+		margin-top: 0;
+	}
+
+	.aica-builder-panel,
+	.aica-review-summary {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 720px) {
+	.aica-main-panel,
+	.aica-sidebar {
+		padding: 16px;
+	}
+
+	.aica-side-nav {
+		grid-template-columns: 1fr;
+	}
+
+	.aica-page-header,
+	.aica-sticky-actions {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
