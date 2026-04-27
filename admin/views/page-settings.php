@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<td>
 							<select id="aica_provider" name="provider">
 								<?php foreach ( $providers as $provider_key => $provider ) : ?>
-									<option value="<?php echo esc_attr( $provider_key ); ?>" data-default-base-url="<?php echo esc_attr( $provider['default_base_url'] ?? '' ); ?>" data-requires-key="<?php echo ! empty( $provider['requires_key'] ) ? '1' : '0'; ?>" <?php selected( $settings['provider'], $provider_key ); ?>>
+									<option value="<?php echo esc_attr( $provider_key ); ?>" data-default-base-url="<?php echo esc_attr( $provider['default_base_url'] ?? '' ); ?>" data-requires-key="<?php echo esc_attr( ! empty( $provider['requires_key'] ) ? '1' : '0' ); ?>" <?php selected( $settings['provider'], $provider_key ); ?>>
 										<?php echo esc_html( $provider['label'] ?? $provider_key ); ?>
 									</option>
 								<?php endforeach; ?>
@@ -64,6 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<?php endforeach; ?>
 							</div>
 							<p class="aica-provider-badge" data-provider-badge="mock"><?php esc_html_e( 'Mock mode is ideal for local testing. No API key or paid provider is required.', 'ai-content-architect' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Non-mock providers send the prompt, model ID, and JSON-only generation instructions to the configured AI service. The mock provider does not contact external services.', 'ai-content-architect' ); ?></p>
 						</td>
 					</tr>
 					<tr class="aica-api-key-row">
@@ -74,7 +75,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<p class="description"><?php esc_html_e( 'An API key is saved. It is not displayed here.', 'ai-content-architect' ); ?></p>
 								<label><input type="checkbox" name="clear_api_key" value="1"> <?php esc_html_e( 'Clear saved API key', 'ai-content-architect' ); ?></label>
 							<?php endif; ?>
-							<p class="description"><?php esc_html_e( 'Saved keys are never printed back into this screen.', 'ai-content-architect' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Saved keys are stored in this site database and are never printed back into this screen.', 'ai-content-architect' ); ?></p>
 						</td>
 					</tr>
 					<tr class="aica-base-url-row">

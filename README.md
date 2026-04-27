@@ -26,7 +26,7 @@ Applied models are stored as configuration and registered dynamically by the plu
 
 ## Current Status
 
-This is an MVP/prototype plugin for local and development testing.
+This plugin is intended for administrator-controlled content model prototyping and implementation inside WordPress.
 
 It currently supports:
 
@@ -92,7 +92,7 @@ Media attachments are intentionally preserved during cleanup.
 
 The Settings screen includes:
 
-- Provider selection: mock or OpenAI-compatible
+- Provider selection: mock, OpenAI, OpenAI-compatible, or custom
 - API key storage without printing the key back to the browser
 - Base URL
 - Model name
@@ -286,6 +286,22 @@ The Settings screen includes provider connection testing and model discovery. Fo
 
 Mock mode remains the recommended local testing path because it requires no API key and exercises the plugin workflow without external calls.
 
+## External Services
+
+AI Content Architect does not contact external AI services while the mock provider is selected.
+
+When an administrator selects OpenAI, OpenAI-compatible, or custom provider mode, the plugin sends the administrator's prompt, the selected model ID, and JSON-only generation instructions to the configured provider endpoint. The API key, when configured, is sent as an Authorization header. The plugin may also request a provider model list when an administrator clicks Refresh models or Test connection.
+
+OpenAI service information:
+
+- Service: OpenAI API
+- Terms: https://openai.com/policies/terms-of-use
+- Privacy policy: https://openai.com/policies/privacy-policy
+
+Custom and OpenAI-compatible providers use the base URL configured by the site administrator. Site owners are responsible for reviewing the terms and privacy policy of any configured custom provider.
+
+AI Content Architect is not affiliated with or endorsed by OpenAI.
+
 ## Custom Providers
 
 AI Content Architect includes a provider registry so integrations do not need to be hardcoded into the settings screen.
@@ -424,11 +440,10 @@ Create a movie database with movies, actors, genres, release dates, ratings, tra
 
 ## Known Limitations
 
-This is still an MVP. Good future improvements include:
+Good future improvements include:
 
 - Visual add/remove controls for CPTs, taxonomies, and fields
 - WordPress media picker support for image and gallery fields
-- OpenAI provider connection test
 - Model revision flow, such as "add a field" or "change taxonomy"
 - Blueprint/template library
 - ACF or Meta Box export
@@ -437,6 +452,7 @@ This is still an MVP. Good future improvements include:
 - Schema.org output
 - Rollback support
 
-## License
+## Asset Licensing
 
-GPLv2 or later. See `LICENSE`.
+- Plugin code: GPLv3. See `LICENSE`.
+- `admin/images/ai-logo.png`: Original plugin asset, licensed GPLv3 with the plugin.
