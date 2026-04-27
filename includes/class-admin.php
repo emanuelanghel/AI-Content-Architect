@@ -120,7 +120,8 @@ class Admin {
 			aica_json_response_error( sanitize_text_field( $config['message'] ?? __( 'AI generation failed.', 'ai-content-architect' ) ) );
 		}
 
-		$result = $this->validator->validate( $config, ! empty( $this->settings()['prevent_slug_conflicts'] ) );
+		$model_id = isset( $_POST['model_id'] ) ? sanitize_key( wp_unslash( $_POST['model_id'] ) ) : null;
+		$result   = $this->validator->validate( $config, ! empty( $this->settings()['prevent_slug_conflicts'] ), $model_id ?: null, 'warning' );
 		if ( ! $result['valid'] ) {
 			aica_json_response_error( __( 'Generated model failed validation.', 'ai-content-architect' ), array( 'errors' => $result['errors'] ) );
 		}
@@ -129,7 +130,7 @@ class Admin {
 			array(
 				'config'   => $result['config'],
 				'warnings' => $result['warnings'],
-				'html'     => $this->render_review_html( $result['config'], null ),
+				'html'     => $this->render_review_html( $result['config'], $model_id ?: null ),
 			)
 		);
 	}
@@ -155,12 +156,14 @@ class Admin {
 
 		$id    = isset( $_POST['model_id'] ) ? sanitize_key( wp_unslash( $_POST['model_id'] ) ) : null;
 		$model = $this->store->save( $result['config'], 'applied', $id ?: null );
+		$this->register_generated_structures();
 
 		if ( ! empty( $_POST['generate_sample'] ) ) {
 			$limit = isset( $_POST['sample_count'] ) ? absint( $_POST['sample_count'] ) : 3;
 			( new Sample_Content_Generator() )->generate( $model, $limit );
 		}
 
+		$this->schedule_rewrite_flush();
 		flush_rewrite_rules();
 		wp_send_json_success( array( 'model' => $model, 'message' => __( 'Content model applied.', 'ai-content-architect' ) ) );
 	}
@@ -169,16 +172,45 @@ class Admin {
 		$this->verify_ajax();
 		$id = isset( $_POST['model_id'] ) ? sanitize_key( wp_unslash( $_POST['model_id'] ) ) : '';
 		$this->store->set_status( $id, 'disabled' );
-		flush_rewrite_rules();
+		$this->schedule_rewrite_flush();
 		wp_send_json_success( array( 'message' => __( 'Model disabled.', 'ai-content-architect' ) ) );
 	}
 
 	public function ajax_delete_model(): void {
 		$this->verify_ajax();
 		$id = isset( $_POST['model_id'] ) ? sanitize_key( wp_unslash( $_POST['model_id'] ) ) : '';
+		$model = $this->store->get( $id );
+		if ( ! $model ) {
+			aica_json_response_error( __( 'Model not found.', 'ai-content-architect' ) );
+		}
+
+		$counts = array(
+			'posts' => 0,
+			'terms' => 0,
+		);
+
+		if ( ! empty( $_POST['delete_content'] ) ) {
+			$counts = ( new Model_Cleaner() )->delete_model_content( $model );
+		}
+
 		$this->store->delete( $id );
-		flush_rewrite_rules();
-		wp_send_json_success( array( 'message' => __( 'Model deleted. Existing content was not deleted.', 'ai-content-architect' ) ) );
+		$this->schedule_rewrite_flush();
+
+		$message = empty( $_POST['delete_content'] )
+			? __( 'Model deleted. Existing content was not deleted.', 'ai-content-architect' )
+			: sprintf(
+				/* translators: 1: deleted post count, 2: deleted term count. */
+				__( 'Model deleted. Removed %1$d generated posts and %2$d taxonomy terms. Media files were not deleted.', 'ai-content-architect' ),
+				(int) $counts['posts'],
+				(int) $counts['terms']
+			);
+
+		wp_send_json_success(
+			array(
+				'message' => $message,
+				'counts'  => $counts,
+			)
+		);
 	}
 
 	private function render_review_html( array $config, ?string $model_id ): string {
@@ -193,12 +225,22 @@ class Admin {
 		if ( ! is_array( $config ) ) {
 			return array( 'valid' => false, 'errors' => array( __( 'Invalid model JSON.', 'ai-content-architect' ) ) );
 		}
-		return $this->validator->validate( $config, ! empty( $this->settings()['prevent_slug_conflicts'] ) );
+		$id = isset( $_POST['model_id'] ) ? sanitize_key( wp_unslash( $_POST['model_id'] ) ) : null;
+		return $this->validator->validate( $config, ! empty( $this->settings()['prevent_slug_conflicts'] ), $id ?: null, 'error' );
 	}
 
 	private function provider(): AI_Provider_Interface {
 		$settings = $this->settings();
 		return 'openai' === ( $settings['provider'] ?? 'mock' ) ? new OpenAI_Provider( $settings ) : new Mock_Provider();
+	}
+
+	private function register_generated_structures(): void {
+		( new CPT_Registrar( $this->store ) )->register();
+		( new Taxonomy_Registrar( $this->store ) )->register();
+	}
+
+	private function schedule_rewrite_flush(): void {
+		update_option( AICA_OPTION_NEEDS_REWRITE_FLUSH, 1, false );
 	}
 
 	private function settings(): array {

@@ -1,0 +1,372 @@
+.aica-content {
+	--aica-content-bg: #ffffff;
+	--aica-content-surface: #f8fafc;
+	--aica-content-border: #dbe4ee;
+	--aica-content-text: #152033;
+	--aica-content-muted: #607089;
+	--aica-content-accent: #0f7ea8;
+	--aica-content-accent-soft: #e8f6fb;
+	--aica-content-radius: 8px;
+	--aica-content-shadow: 0 14px 34px rgba(21, 32, 51, 0.08);
+	color: var(--aica-content-text);
+}
+
+.aica-content-injected {
+	margin-top: 2rem;
+}
+
+.aica-content-single {
+	width: min(1120px, calc(100% - 2rem));
+	margin: 0 auto;
+	padding: 2rem 0 4rem;
+}
+
+.aica-content-entry {
+	display: grid;
+	gap: 2rem;
+}
+
+.aica-content-hero {
+	display: grid;
+	gap: 1.5rem;
+	align-items: end;
+}
+
+.aica-content-title,
+.aica-content-archive-title {
+	margin: 0;
+	color: var(--aica-content-text);
+	letter-spacing: 0;
+}
+
+.aica-content-featured-image {
+	margin: 0;
+	overflow: hidden;
+	border: 1px solid var(--aica-content-border);
+	border-radius: var(--aica-content-radius);
+	background: var(--aica-content-surface);
+}
+
+.aica-content-featured-image img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.aica-content-body {
+	max-width: 76ch;
+}
+
+.aica-content-fields,
+.aica-content-taxonomies,
+.aica-content-template-note {
+	margin-top: 1.5rem;
+	padding: 1.25rem;
+	border: 1px solid var(--aica-content-border);
+	border-radius: var(--aica-content-radius);
+	background: var(--aica-content-bg);
+	box-shadow: var(--aica-content-shadow);
+}
+
+.aica-content-section-heading {
+	margin-bottom: 1rem;
+}
+
+.aica-content-section-heading h2,
+.aica-content-template-note h2 {
+	margin: 0;
+	color: var(--aica-content-text);
+	font-size: 1.125rem;
+	line-height: 1.3;
+	letter-spacing: 0;
+}
+
+.aica-content-template-note p {
+	margin: 0.65rem 0 0;
+	color: var(--aica-content-muted);
+}
+
+.aica-content-fields-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.85rem;
+}
+
+.aica-content-field {
+	min-width: 0;
+	padding: 0.9rem;
+	border: 1px solid var(--aica-content-border);
+	border-radius: var(--aica-content-radius);
+	background: var(--aica-content-surface);
+}
+
+.aica-content-field.is-wide,
+.aica-content-field-type-textarea,
+.aica-content-field-type-wysiwyg,
+.aica-content-field-type-gallery {
+	grid-column: 1 / -1;
+}
+
+.aica-content-field-label,
+.aica-content-taxonomy-label,
+.aica-content-card-field-label {
+	margin-bottom: 0.35rem;
+	color: var(--aica-content-muted);
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1.25;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.aica-content-field-value,
+.aica-content-card-field-value {
+	color: var(--aica-content-text);
+	font-size: 1rem;
+	line-height: 1.55;
+	overflow-wrap: anywhere;
+}
+
+.aica-content-field-value a {
+	color: var(--aica-content-accent);
+	text-decoration-thickness: 0.08em;
+	text-underline-offset: 0.18em;
+}
+
+.aica-content-badge {
+	display: inline-flex;
+	align-items: center;
+	width: fit-content;
+	min-height: 1.7rem;
+	padding: 0.25rem 0.6rem;
+	border-radius: 999px;
+	background: var(--aica-content-accent-soft);
+	color: #075f7f;
+	font-size: 0.85rem;
+	font-weight: 700;
+}
+
+.aica-content-badge.is-no {
+	background: #eef2f6;
+	color: var(--aica-content-muted);
+}
+
+.aica-content-image-wrap,
+.aica-content-gallery figure {
+	margin: 0;
+}
+
+.aica-content-image,
+.aica-content-gallery-image {
+	display: block;
+	width: 100%;
+	height: auto;
+	border-radius: calc(var(--aica-content-radius) - 2px);
+}
+
+.aica-content-gallery {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 0.75rem;
+}
+
+.aica-content-taxonomies {
+	display: grid;
+	gap: 1rem;
+}
+
+.aica-content-taxonomy {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.aica-content-taxonomy-terms {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+.aica-content-term {
+	display: inline-flex;
+	align-items: center;
+	min-height: 1.75rem;
+	padding: 0.25rem 0.65rem;
+	border: 1px solid var(--aica-content-border);
+	border-radius: 999px;
+	background: var(--aica-content-surface);
+	color: var(--aica-content-text);
+	font-size: 0.88rem;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+}
+
+.aica-content-term:hover {
+	border-color: color-mix(in srgb, var(--aica-content-accent) 45%, var(--aica-content-border));
+	color: var(--aica-content-accent);
+}
+
+.aica-content-archive {
+	width: min(1180px, calc(100% - 2rem));
+	margin: 0 auto;
+	padding: 2rem 0 4rem;
+}
+
+.aica-content-archive-header {
+	margin-bottom: 1.5rem;
+}
+
+.aica-content-archive-description {
+	max-width: 72ch;
+	margin-top: 0.6rem;
+	color: var(--aica-content-muted);
+}
+
+.aica-content-card-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.aica-content-card {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	overflow: hidden;
+	border: 1px solid var(--aica-content-border);
+	border-radius: var(--aica-content-radius);
+	background: var(--aica-content-bg);
+	box-shadow: var(--aica-content-shadow);
+}
+
+.aica-content-card-media {
+	display: block;
+	aspect-ratio: 16 / 10;
+	background: linear-gradient(135deg, #eef6fa, #f8fafc);
+	text-decoration: none;
+}
+
+.aica-content-card-media img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.aica-content-card-placeholder {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background:
+		linear-gradient(135deg, rgba(15, 126, 168, 0.16), rgba(255, 255, 255, 0)),
+		var(--aica-content-surface);
+}
+
+.aica-content-card-body {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 0.85rem;
+	padding: 1rem;
+}
+
+.aica-content-card-title {
+	margin: 0;
+	font-size: 1.15rem;
+	line-height: 1.3;
+	letter-spacing: 0;
+}
+
+.aica-content-card-title a,
+.aica-content-card-link {
+	color: var(--aica-content-text);
+	text-decoration: none;
+}
+
+.aica-content-card-title a:hover,
+.aica-content-card-link:hover {
+	color: var(--aica-content-accent);
+}
+
+.aica-content-card-excerpt {
+	color: var(--aica-content-muted);
+	font-size: 0.95rem;
+	line-height: 1.55;
+}
+
+.aica-content-card-excerpt p {
+	margin: 0;
+}
+
+.aica-content-card-fields {
+	display: grid;
+	gap: 0.45rem;
+	padding-top: 0.25rem;
+}
+
+.aica-content-card-field {
+	display: grid;
+	grid-template-columns: minmax(7rem, 0.45fr) minmax(0, 1fr);
+	gap: 0.65rem;
+	align-items: baseline;
+}
+
+.aica-content-card-field-label {
+	margin-bottom: 0;
+}
+
+.aica-content-card-field-value {
+	font-size: 0.93rem;
+}
+
+.aica-content-card .aica-content-taxonomies {
+	margin-top: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.aica-content-card .aica-content-taxonomy-label {
+	display: none;
+}
+
+.aica-content-card .aica-content-term {
+	min-height: 1.55rem;
+	padding: 0.2rem 0.55rem;
+	font-size: 0.8rem;
+}
+
+.aica-content-card-link {
+	margin-top: auto;
+	font-weight: 700;
+}
+
+.aica-content-pagination,
+.aica-content-empty {
+	margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+	.aica-content-card-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 680px) {
+	.aica-content-single,
+	.aica-content-archive {
+		width: min(100% - 1rem, 100%);
+		padding-top: 1rem;
+	}
+
+	.aica-content-fields-grid,
+	.aica-content-card-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.aica-content-card-field {
+		grid-template-columns: 1fr;
+		gap: 0.2rem;
+	}
+}

@@ -23,7 +23,7 @@ class Template_Manager {
 			return $template;
 		}
 
-		return $this->is_generated_post_type( get_post_type() ) ? AICA_PATH . 'templates/single-dynamic-content.php' : $template;
+		return $this->is_generated_post_type( get_post_type() ) ? $this->locate_template( 'single-dynamic-content.php' ) : $template;
 	}
 
 	public function archive_template( string $template ): string {
@@ -31,7 +31,7 @@ class Template_Manager {
 			return $template;
 		}
 
-		return $this->is_generated_post_type( get_query_var( 'post_type' ) ) ? AICA_PATH . 'templates/archive-dynamic-content.php' : $template;
+		return $this->is_generated_post_type( get_query_var( 'post_type' ) ) ? $this->locate_template( 'archive-dynamic-content.php' ) : $template;
 	}
 
 	public function fields_for_post_type( string $post_type ): array {
@@ -49,6 +49,17 @@ class Template_Manager {
 	private function enabled(): bool {
 		$settings = get_option( AICA_OPTION_SETTINGS, array() );
 		return ! empty( $settings['enable_templates'] );
+	}
+
+	public function locate_template( string $template_name ): string {
+		$template_name = ltrim( $template_name, '/\\' );
+		$theme_template = locate_template( 'ai-content-architect/' . $template_name );
+
+		if ( $theme_template ) {
+			return $theme_template;
+		}
+
+		return AICA_PATH . 'templates/' . $template_name;
 	}
 
 	private function is_generated_post_type( $post_type ): bool {

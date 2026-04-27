@@ -66,6 +66,10 @@
 		}
 	}
 
+	function message(key, fallback) {
+		return aicaAdmin && aicaAdmin.messages && aicaAdmin.messages[key] ? aicaAdmin.messages[key] : fallback;
+	}
+
 	function post(action, data, done, $button) {
 		data = data || {};
 		data.action = 'aica_' + action;
@@ -86,6 +90,49 @@
 		}).always(function () {
 			setLoading($button, false);
 		});
+	}
+
+	function closeDeletePopover() {
+		$('.aica-delete-popover').remove();
+		$('.aica-row-delete[aria-expanded="true"]').attr('aria-expanded', 'false');
+	}
+
+	function positionDeletePopover($popover, $button) {
+		var rect = $button[0].getBoundingClientRect();
+		var width = $popover.outerWidth();
+		var left = window.pageXOffset + rect.left + (rect.width / 2) - (width / 2);
+		var top = window.pageYOffset + rect.bottom + 8;
+		var maxLeft = window.pageXOffset + $(window).width() - width - 16;
+		left = Math.max(window.pageXOffset + 16, Math.min(left, maxLeft));
+		$popover.css({ left: left, top: top });
+	}
+
+	function openDeletePopover($button) {
+		closeDeletePopover();
+		$button.attr('aria-expanded', 'true');
+
+		var html = [
+			'<div class="aica-delete-popover" role="dialog" aria-modal="false" aria-labelledby="aica-delete-popover-title">',
+				'<div class="aica-delete-popover-header">',
+					'<p class="aica-delete-popover-title" id="aica-delete-popover-title">' + $('<div>').text(message('deleteTitle', 'Delete model?')).html() + '</p>',
+					'<p class="aica-delete-popover-description">' + $('<div>').text(message('deleteDescription', 'Choose whether to keep existing generated content or remove it with the model.')).html() + '</p>',
+				'</div>',
+				'<div class="aica-delete-popover-body">',
+					'<p>' + $('<div>').text(message('deleteWarning', 'Deleting generated content removes posts and taxonomy terms for this model. Media files are kept.')).html() + '</p>',
+				'</div>',
+				'<div class="aica-delete-popover-footer">',
+					'<button type="button" class="button button-small aica-delete-cancel">' + $('<div>').text(message('cancel', 'Cancel')).html() + '</button>',
+					'<button type="button" class="button button-small aica-delete-model-only">' + $('<div>').text(message('deleteModelOnly', 'Delete model only')).html() + '</button>',
+					'<button type="button" class="button button-small button-link-delete aica-delete-with-content">' + $('<div>').text(message('deleteModelWithContent', 'Delete model + content')).html() + '</button>',
+				'</div>',
+			'</div>'
+		].join('');
+
+		var $popover = $(html).appendTo('body');
+		$popover.data('row', $button.closest('tr'));
+		$popover.data('trigger', $button);
+		positionDeletePopover($popover, $button);
+		$popover.find('.aica-delete-cancel').trigger('focus');
 	}
 
 	function updateGenerateState() {
@@ -113,12 +160,14 @@
 			notice('Add a more detailed prompt before generating a content model.', 'warning');
 			return;
 		}
+		$('#aica-review').empty();
 		$('#aica-spinner').addClass('is-active');
 		$button.prop('disabled', true);
 		$.post(aicaAdmin.ajaxUrl, {
 			action: 'aica_generate_model',
 			nonce: aicaAdmin.nonce,
-			prompt: prompt
+			prompt: prompt,
+			model_id: $('#aica-model-id').val()
 		}).done(function (response) {
 			if (!response || !response.success) {
 				var message = response && response.data && response.data.message ? response.data.message : 'Generation failed.';
@@ -129,7 +178,11 @@
 				return;
 			}
 			$('#aica-review').html(response.data.html);
-			notice('Model generated. Review and edit it before applying.', 'success');
+			if (response.data.warnings && response.data.warnings.length) {
+				notice('Model generated with warnings: ' + response.data.warnings.join(' '), 'warning');
+			} else {
+				notice('Model generated. Review and edit it before applying.', 'success');
+			}
 		}).fail(function () {
 			notice('Generation failed. Please try again.', 'error');
 		}).always(function () {
@@ -187,15 +240,43 @@
 		}, $button);
 	});
 
-	$('.aica-row-delete').on('click', function () {
-		if (!window.confirm(aicaAdmin.messages.confirmDelete)) {
-			return;
-		}
-		var $row = $(this).closest('tr');
-		var $button = $(this);
-		post('delete_model', { model_id: $row.data('model-id') }, function (data) {
+	$('.aica-row-delete').attr('aria-haspopup', 'dialog').attr('aria-expanded', 'false').on('click', function (event) {
+		event.preventDefault();
+		openDeletePopover($(this));
+	});
+
+	$(document).on('click', '.aica-delete-cancel', closeDeletePopover);
+
+	$(document).on('click', '.aica-delete-model-only, .aica-delete-with-content', function () {
+		var $action = $(this);
+		var $popover = $action.closest('.aica-delete-popover');
+		var $row = $popover.data('row');
+		var deleteContent = $action.hasClass('aica-delete-with-content') ? 1 : 0;
+
+		post('delete_model', { model_id: $row.data('model-id'), delete_content: deleteContent }, function (data) {
 			notice(data.message, 'success');
 			$row.remove();
-		}, $button);
+			closeDeletePopover();
+		}, $action);
+	});
+
+	$(document).on('click', function (event) {
+		if (!$(event.target).closest('.aica-delete-popover, .aica-row-delete').length) {
+			closeDeletePopover();
+		}
+	});
+
+	$(document).on('keydown', function (event) {
+		if (event.key === 'Escape') {
+			closeDeletePopover();
+		}
+	});
+
+	$(window).on('resize scroll', function () {
+		var $popover = $('.aica-delete-popover');
+		if (!$popover.length) {
+			return;
+		}
+		positionDeletePopover($popover, $popover.data('trigger'));
 	});
 })(jQuery);
