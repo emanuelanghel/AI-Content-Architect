@@ -50,7 +50,9 @@ class Admin {
 
 	public function render_settings_page(): void {
 		$this->guard();
-		$settings = $this->settings();
+		$settings      = $this->settings();
+		$providers     = Provider_Registry::providers();
+		$model_choices = Provider_Registry::model_choices( $settings );
 		require AICA_PATH . 'admin/views/page-settings.php';
 	}
 
@@ -58,12 +60,20 @@ class Admin {
 		$this->verify_admin_post();
 		$existing = $this->settings();
 		$api_key  = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+		$provider = Provider_Registry::normalize_provider( isset( $_POST['provider'] ) ? sanitize_key( wp_unslash( $_POST['provider'] ) ) : 'mock' );
+		$use_custom_model = ! empty( $_POST['use_custom_model'] );
+		$selected_model = sanitize_text_field( isset( $_POST['model'] ) ? wp_unslash( $_POST['model'] ) : Provider_Registry::DEFAULT_MODEL );
+		$custom_model = sanitize_text_field( isset( $_POST['custom_model'] ) ? wp_unslash( $_POST['custom_model'] ) : '' );
+		$model = $use_custom_model && '' !== $custom_model ? $custom_model : $selected_model;
+		$base_url = Provider_Registry::normalize_base_url( isset( $_POST['base_url'] ) ? (string) wp_unslash( $_POST['base_url'] ) : '', $provider );
 
 		$settings = array(
-			'provider'               => isset( $_POST['provider'] ) && 'openai' === sanitize_key( wp_unslash( $_POST['provider'] ) ) ? 'openai' : 'mock',
+			'provider'               => $provider,
 			'api_key'                => '' !== $api_key ? $api_key : ( $existing['api_key'] ?? '' ),
-			'base_url'               => esc_url_raw( isset( $_POST['base_url'] ) ? wp_unslash( $_POST['base_url'] ) : '' ),
-			'model'                  => sanitize_text_field( isset( $_POST['model'] ) ? wp_unslash( $_POST['model'] ) : 'gpt-4.1-mini' ),
+			'base_url'               => $base_url,
+			'model'                  => $model,
+			'custom_model'           => $custom_model,
+			'use_custom_model'       => $use_custom_model,
 			'strict_validation'      => ! empty( $_POST['strict_validation'] ),
 			'prevent_slug_conflicts' => ! empty( $_POST['prevent_slug_conflicts'] ),
 			'require_review'         => true,
@@ -78,6 +88,62 @@ class Admin {
 		update_option( AICA_OPTION_SETTINGS, $settings, false );
 		wp_safe_redirect( add_query_arg( 'aica_notice', 'settings_saved', admin_url( 'admin.php?page=aica-settings' ) ) );
 		exit;
+	}
+
+	public function ajax_refresh_models(): void {
+		$this->verify_ajax();
+		$settings = $this->settings_from_ajax();
+		$provider = Provider_Registry::create_provider( $settings );
+
+		if ( ! $provider instanceof AI_Model_Provider_Interface ) {
+			aica_json_response_error( __( 'This provider does not support model discovery.', 'ai-content-architect' ) );
+		}
+
+		$result = $provider->list_models();
+		if ( empty( $result['valid'] ) ) {
+			aica_json_response_error(
+				sanitize_text_field( (string) ( $result['message'] ?? __( 'Unable to refresh models.', 'ai-content-architect' ) ) ),
+				array( 'models' => $result['models'] ?? Provider_Registry::fallback_models() )
+			);
+		}
+
+		$models = $this->sanitize_models( (array) ( $result['models'] ?? array() ) );
+		$cache = array(
+			'provider'     => Provider_Registry::normalize_provider( (string) $settings['provider'] ),
+			'base_url'     => Provider_Registry::normalize_base_url( (string) $settings['base_url'], (string) $settings['provider'] ),
+			'models'       => $models,
+			'refreshed_at' => current_time( 'mysql' ),
+		);
+		update_option( AICA_OPTION_PROVIDER_MODELS_CACHE, $cache, false );
+
+		wp_send_json_success(
+			array(
+				'message'      => __( 'Model list refreshed.', 'ai-content-architect' ),
+				'models'       => $models,
+				'refreshed_at' => $cache['refreshed_at'],
+			)
+		);
+	}
+
+	public function ajax_test_provider_connection(): void {
+		$this->verify_ajax();
+		$settings = $this->settings_from_ajax();
+		$provider = Provider_Registry::create_provider( $settings );
+
+		if ( ! $provider instanceof AI_Model_Provider_Interface ) {
+			aica_json_response_error( __( 'This provider does not support connection testing.', 'ai-content-architect' ) );
+		}
+
+		$result = $provider->test_connection();
+		if ( empty( $result['valid'] ) ) {
+			aica_json_response_error( sanitize_text_field( (string) ( $result['message'] ?? __( 'Connection failed.', 'ai-content-architect' ) ) ) );
+		}
+
+		wp_send_json_success(
+			array(
+				'message' => sanitize_text_field( (string) ( $result['message'] ?? __( 'Connection successful.', 'ai-content-architect' ) ) ),
+			)
+		);
 	}
 
 	public function import_model(): void {
@@ -230,8 +296,7 @@ class Admin {
 	}
 
 	private function provider(): AI_Provider_Interface {
-		$settings = $this->settings();
-		return 'openai' === ( $settings['provider'] ?? 'mock' ) ? new OpenAI_Provider( $settings ) : new Mock_Provider();
+		return Provider_Registry::create_provider( $this->settings() );
 	}
 
 	private function register_generated_structures(): void {
@@ -244,13 +309,15 @@ class Admin {
 	}
 
 	private function settings(): array {
-		return wp_parse_args(
+		$settings = wp_parse_args(
 			get_option( AICA_OPTION_SETTINGS, array() ),
 			array(
 				'provider'               => 'mock',
 				'api_key'                => '',
-				'base_url'               => 'https://api.openai.com/v1/chat/completions',
-				'model'                  => 'gpt-4.1-mini',
+				'base_url'               => Provider_Registry::OPENAI_BASE_URL,
+				'model'                  => Provider_Registry::DEFAULT_MODEL,
+				'custom_model'           => '',
+				'use_custom_model'       => false,
 				'strict_validation'      => true,
 				'prevent_slug_conflicts' => true,
 				'require_review'         => true,
@@ -258,6 +325,53 @@ class Admin {
 				'show_frontend_fields'   => true,
 			)
 		);
+
+		$settings['provider'] = Provider_Registry::normalize_provider( (string) $settings['provider'] );
+		$settings['base_url'] = Provider_Registry::normalize_base_url( (string) $settings['base_url'], (string) $settings['provider'] );
+
+		return $settings;
+	}
+
+	private function settings_from_ajax(): array {
+		$current = $this->settings();
+		$provider = Provider_Registry::normalize_provider( isset( $_POST['provider'] ) ? sanitize_key( wp_unslash( $_POST['provider'] ) ) : (string) $current['provider'] );
+		$api_key = isset( $_POST['api_key'] ) ? sanitize_text_field( wp_unslash( $_POST['api_key'] ) ) : '';
+		$base_url = isset( $_POST['base_url'] ) ? (string) wp_unslash( $_POST['base_url'] ) : (string) $current['base_url'];
+		$model = isset( $_POST['model'] ) ? sanitize_text_field( wp_unslash( $_POST['model'] ) ) : (string) $current['model'];
+		$custom_model = isset( $_POST['custom_model'] ) ? sanitize_text_field( wp_unslash( $_POST['custom_model'] ) ) : (string) $current['custom_model'];
+		$use_custom_model = ! empty( $_POST['use_custom_model'] );
+
+		return array_merge(
+			$current,
+			array(
+				'provider'         => $provider,
+				'api_key'          => '' !== $api_key ? $api_key : (string) $current['api_key'],
+				'base_url'         => Provider_Registry::normalize_base_url( $base_url, $provider ),
+				'model'            => $use_custom_model && '' !== $custom_model ? $custom_model : $model,
+				'custom_model'     => $custom_model,
+				'use_custom_model' => $use_custom_model,
+			)
+		);
+	}
+
+	private function sanitize_models( array $models ): array {
+		$clean = array();
+		foreach ( $models as $model ) {
+			$model = (array) $model;
+			$id = sanitize_text_field( (string) ( $model['id'] ?? '' ) );
+			if ( '' === $id ) {
+				continue;
+			}
+
+			$clean[] = array(
+				'id'          => $id,
+				'label'       => sanitize_text_field( (string) ( $model['label'] ?? Provider_Registry::model_label( $id ) ) ),
+				'description' => sanitize_text_field( (string) ( $model['description'] ?? '' ) ),
+				'badge'       => sanitize_text_field( (string) ( $model['badge'] ?? '' ) ),
+			);
+		}
+
+		return $clean;
 	}
 
 	private function verify_ajax(): void {

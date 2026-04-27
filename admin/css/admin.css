@@ -430,6 +430,56 @@
 	margin: 10px 0;
 }
 
+.aica-provider-description {
+	display: none;
+}
+
+.aica-provider-description.is-active {
+	display: block;
+}
+
+.aica-provider-badge {
+	background: #ecfdf5;
+	border: 1px solid #a7f3d0;
+	border-radius: 12px;
+	color: #047857;
+	display: none;
+	font-weight: 700;
+	margin: 10px 0 0;
+	padding: 10px 12px;
+}
+
+.aica-provider-badge.is-active {
+	display: block;
+}
+
+.aica-model-picker {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.aica-model-picker select {
+	flex: 1 1 280px;
+	margin-top: 0 !important;
+}
+
+.aica-inline-check {
+	align-items: center;
+	display: inline-flex !important;
+	gap: 8px;
+	margin: 12px 0 6px !important;
+}
+
+#aica_custom_model {
+	display: none;
+}
+
+#aica_custom_model.is-active {
+	display: block;
+}
+
 .aica-checks label {
 	font-weight: 500;
 	margin: 0;

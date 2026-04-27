@@ -58,7 +58,7 @@ class Plugin {
 		add_filter( 'archive_template', array( $this->templates, 'archive_template' ) );
 		add_filter( 'the_content', array( $frontend, 'append_fields_to_content' ), 20 );
 
-		foreach ( array( 'generate_model', 'save_model', 'apply_model', 'disable_model', 'delete_model' ) as $action ) {
+		foreach ( array( 'generate_model', 'save_model', 'apply_model', 'disable_model', 'delete_model', 'refresh_models', 'test_provider_connection' ) as $action ) {
 			add_action( 'wp_ajax_aica_' . $action, array( $admin, 'ajax_' . $action ) );
 		}
 	}

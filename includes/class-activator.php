@@ -18,8 +18,10 @@ class Activator {
 			AICA_OPTION_SETTINGS,
 			array(
 				'provider'               => 'mock',
-				'base_url'               => 'https://api.openai.com/v1/chat/completions',
-				'model'                  => 'gpt-4.1-mini',
+				'base_url'               => Provider_Registry::OPENAI_BASE_URL,
+				'model'                  => Provider_Registry::DEFAULT_MODEL,
+				'custom_model'           => '',
+				'use_custom_model'       => false,
 				'strict_validation'      => true,
 				'prevent_slug_conflicts' => true,
 				'require_review'         => true,
