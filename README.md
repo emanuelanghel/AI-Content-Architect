@@ -282,6 +282,40 @@ Settings include:
 
 The API key is saved but never printed back into the settings form.
 
+The Settings screen includes provider connection testing and model discovery. For OpenAI and OpenAI-compatible providers, administrators can refresh the available model list from the provider API instead of typing model IDs manually. A curated fallback list is shown until a provider model list is refreshed, and advanced users can still enter a custom model ID.
+
+Mock mode remains the recommended local testing path because it requires no API key and exercises the plugin workflow without external calls.
+
+## Custom Providers
+
+AI Content Architect includes a provider registry so integrations do not need to be hardcoded into the settings screen.
+
+Built-in provider options include:
+
+- Mock provider
+- OpenAI
+- OpenAI-compatible
+- Custom provider
+
+The custom provider option is intended for OpenAI-compatible local services, gateways, or third-party APIs. Developers can register additional providers with:
+
+```php
+add_filter( 'aica_ai_providers', function ( array $providers ) {
+	$providers['my_provider'] = array(
+		'label'           => 'My Provider',
+		'description'     => 'Custom provider for AI Content Architect.',
+		'class'           => My_AICA_Provider::class,
+		'supports_models' => true,
+		'requires_key'    => true,
+		'default_base_url'=> 'https://example.com/v1',
+	);
+
+	return $providers;
+} );
+```
+
+Provider classes must implement `AI_Provider_Interface`. Providers that support model refresh and connection testing can also implement `AI_Model_Provider_Interface`.
+
 ## Important Files
 
 Bootstrap:

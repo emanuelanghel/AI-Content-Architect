@@ -145,9 +145,57 @@
 		}
 	}
 
+	function settingsPayload() {
+		return {
+			provider: $('#aica_provider').val(),
+			api_key: $('#aica_api_key').val(),
+			base_url: $('#aica_base_url').val(),
+			model: $('#aica_model').val(),
+			custom_model: $('#aica_custom_model').val(),
+			use_custom_model: $('#aica_use_custom_model').is(':checked') ? 1 : 0
+		};
+	}
+
+	function updateSettingsState() {
+		var provider = $('#aica_provider').val() || 'mock';
+		var $selected = $('#aica_provider option:selected');
+		var useCustom = $('#aica_use_custom_model').is(':checked');
+
+		$('.aica-provider-description').removeClass('is-active').filter('[data-provider="' + provider + '"]').addClass('is-active');
+		$('.aica-provider-badge').toggleClass('is-active', provider === 'mock');
+		$('.aica-api-key-row, .aica-base-url-row, .aica-model-row').toggle(provider !== 'mock');
+		$('#aica_model').prop('disabled', useCustom || provider === 'mock');
+		$('#aica_custom_model').toggleClass('is-active', useCustom && provider !== 'mock');
+
+		if (provider !== 'mock' && !($('#aica_base_url').val() || '').trim()) {
+			$('#aica_base_url').val($selected.data('default-base-url') || 'https://api.openai.com/v1');
+		}
+	}
+
+	function replaceModelOptions(models, selected) {
+		var $select = $('#aica_model');
+		$select.empty();
+		(models || []).forEach(function (model) {
+			var id = model.id || '';
+			if (!id) {
+				return;
+			}
+			var label = model.label || id;
+			if (model.badge) {
+				label += ' - ' + model.badge;
+			}
+			$select.append($('<option>').val(id).text(label));
+		});
+		if (selected) {
+			$select.val(selected);
+		}
+	}
+
 	$(document).on('input change', '.aica-config-input, .aica-config-csv, .aica-config-array', syncConfig);
 	$(document).on('input', '#aica-prompt', updateGenerateState);
+	$(document).on('change', '#aica_provider, #aica_use_custom_model', updateSettingsState);
 	updateGenerateState();
+	updateSettingsState();
 
 	$(document).on('click', '.aica-example-chip', function () {
 		$('#aica-prompt').val($(this).data('prompt')).trigger('input').focus();
@@ -217,6 +265,25 @@
 
 	$(document).on('click', '#aica-regenerate', function () {
 		$('#aica-generate-model').trigger('click');
+	});
+
+	$(document).on('click', '#aica-refresh-models', function () {
+		var $button = $(this);
+		var selected = $('#aica_model').val();
+		post('refresh_models', settingsPayload(), function (data) {
+			replaceModelOptions(data.models || [], selected);
+			if (data.refreshed_at) {
+				$('#aica-model-source').text('Model list last refreshed: ' + data.refreshed_at + '.');
+			}
+			notice(data.message || 'Model list refreshed.', 'success');
+		}, $button);
+	});
+
+	$(document).on('click', '#aica-test-provider', function () {
+		var $button = $(this);
+		post('test_provider_connection', settingsPayload(), function (data) {
+			notice(data.message || 'Connection successful.', 'success');
+		}, $button);
 	});
 
 	$('.aica-row-apply').on('click', function () {

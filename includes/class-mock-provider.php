@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Mock_Provider implements AI_Provider_Interface {
+class Mock_Provider implements AI_Provider_Interface, AI_Model_Provider_Interface {
 	public function generate_content_model( string $user_prompt ): array {
 		if ( false !== stripos( $user_prompt, 'restaurant' ) || false !== stripos( $user_prompt, 'menu' ) || false !== stripos( $user_prompt, 'dish' ) ) {
 			return $this->restaurant_menu();
@@ -26,6 +26,27 @@ class Mock_Provider implements AI_Provider_Interface {
 		}
 
 		return $this->job_board();
+	}
+
+	public function list_models(): array {
+		return array(
+			'valid'  => true,
+			'models' => array(
+				array(
+					'id'          => 'mock',
+					'label'       => __( 'Mock provider samples', 'ai-content-architect' ),
+					'description' => __( 'No API key required. Returns sample structures based on prompt keywords.', 'ai-content-architect' ),
+					'badge'       => __( 'Development', 'ai-content-architect' ),
+				),
+			),
+		);
+	}
+
+	public function test_connection(): array {
+		return array(
+			'valid'   => true,
+			'message' => __( 'Mock provider is ready. No API key is required.', 'ai-content-architect' ),
+		);
 	}
 
 	private function job_board(): array {
