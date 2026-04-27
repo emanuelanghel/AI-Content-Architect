@@ -38,7 +38,7 @@ $warning_count = count( (array) ( $config['warnings'] ?? array() ) );
 			<span><?php esc_html_e( 'Fields', 'ai-content-architect' ); ?></span>
 			<strong><?php echo esc_html( $field_count ); ?></strong>
 		</div>
-		<div class="<?php echo $warning_count ? 'has-warning' : ''; ?>">
+		<div class="<?php echo esc_attr( $warning_count ? 'has-warning' : '' ); ?>">
 			<span><?php esc_html_e( 'Warnings', 'ai-content-architect' ); ?></span>
 			<strong><?php echo esc_html( $warning_count ); ?></strong>
 		</div>

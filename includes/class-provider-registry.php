@@ -179,11 +179,31 @@ class Provider_Registry {
 		}
 
 		$base_url = untrailingslashit( esc_url_raw( $base_url ) );
+		if ( '' === $base_url || ! self::is_allowed_base_url( $base_url ) ) {
+			return '';
+		}
+
 		$base_url = preg_replace( '#/chat/completions$#', '', $base_url );
 		$base_url = preg_replace( '#/responses$#', '', $base_url );
 		$base_url = preg_replace( '#/models$#', '', $base_url );
 
 		return untrailingslashit( (string) $base_url );
+	}
+
+	private static function is_allowed_base_url( string $base_url ): bool {
+		$parts  = wp_parse_url( $base_url );
+		$scheme = strtolower( (string) ( $parts['scheme'] ?? '' ) );
+		$host   = strtolower( (string) ( $parts['host'] ?? '' ) );
+
+		if ( 'https' === $scheme ) {
+			return '' !== $host;
+		}
+
+		if ( 'http' !== $scheme ) {
+			return false;
+		}
+
+		return in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true );
 	}
 
 	public static function model_label( string $model_id ): string {

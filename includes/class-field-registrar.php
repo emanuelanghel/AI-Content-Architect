@@ -31,8 +31,8 @@ class Field_Registrar {
 						'sanitize_callback' => function ( $value ) use ( $field ) {
 							return $this->sanitize_field_value( $value, $field );
 						},
-						'auth_callback'     => function () {
-							return current_user_can( 'edit_posts' );
+						'auth_callback'     => function ( $allowed, $meta_key, $post_id ) {
+							return current_user_can( 'edit_post', (int) $post_id );
 						},
 					)
 				);
