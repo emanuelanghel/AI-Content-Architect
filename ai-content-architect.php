@@ -22,6 +22,7 @@ define( 'AICA_PATH', plugin_dir_path( __FILE__ ) );
 define( 'AICA_URL', plugin_dir_url( __FILE__ ) );
 define( 'AICA_OPTION_MODELS', 'aica_content_models' );
 define( 'AICA_OPTION_SETTINGS', 'aica_settings' );
+define( 'AICA_OPTION_NEEDS_REWRITE_FLUSH', 'aica_needs_rewrite_flush' );
 
 require_once AICA_PATH . 'includes/helpers.php';
 

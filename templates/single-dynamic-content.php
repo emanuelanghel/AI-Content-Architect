@@ -10,36 +10,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
+$manager  = \AIContentArchitect\Plugin::instance()->templates;
+$renderer = new \AIContentArchitect\Frontend_Display( $manager );
 ?>
-<main id="primary" class="site-main aica-template">
+<main id="primary" class="site-main aica-content aica-content-single">
 	<?php while ( have_posts() ) : the_post(); ?>
-		<article <?php post_class(); ?>>
-			<header class="entry-header">
-				<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+		<article <?php post_class( 'aica-content-entry' ); ?>>
+			<header class="aica-content-hero">
+				<div class="aica-content-hero-text">
+					<?php the_title( '<h1 class="aica-content-title">', '</h1>' ); ?>
+				</div>
 				<?php if ( has_post_thumbnail() ) : ?>
-					<div class="post-thumbnail"><?php the_post_thumbnail( 'large' ); ?></div>
+					<figure class="aica-content-featured-image"><?php the_post_thumbnail( 'large' ); ?></figure>
 				<?php endif; ?>
 			</header>
-			<div class="entry-content"><?php the_content(); ?></div>
 			<?php
-			$manager = \AIContentArchitect\Plugin::instance()->templates;
-			$fields  = $manager->fields_for_post_type( get_post_type() );
-			if ( ! empty( $fields ) ) :
-				?>
-				<section class="aica-generated-fields">
-					<h2><?php esc_html_e( 'Details', 'ai-content-architect' ); ?></h2>
-					<dl>
-						<?php foreach ( $fields as $field ) : ?>
-							<?php $value = get_post_meta( get_the_ID(), aica_meta_key( $field['key'] ), true ); ?>
-							<?php if ( '' !== (string) $value ) : ?>
-								<dt><?php echo esc_html( $field['label'] ); ?></dt>
-								<dd><?php echo 'wysiwyg' === $field['type'] ? wp_kses_post( $value ) : esc_html( (string) $value ); ?></dd>
-							<?php endif; ?>
-						<?php endforeach; ?>
-					</dl>
-				</section>
-			<?php endif; ?>
-			<footer class="entry-footer"><?php the_taxonomies(); ?></footer>
+			$GLOBALS['aica_rendering_fallback_template'] = true;
+			?>
+			<div class="aica-content-body"><?php the_content(); ?></div>
+			<?php
+			unset( $GLOBALS['aica_rendering_fallback_template'] );
+
+			$fields = $manager->fields_for_post_type( get_post_type() );
+			if ( ! empty( $fields ) ) {
+				echo $renderer->render_fields( get_the_ID(), $fields ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			}
+			echo $renderer->render_taxonomies( get_the_ID(), get_post_type() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
 		</article>
 	<?php endwhile; ?>
 </main>
