@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Mock_Provider implements AI_Provider_Interface, AI_Model_Provider_Interface {
 	public function generate_content_model( string $user_prompt ): array {
+		if ( false !== stripos( $user_prompt, 'event' ) || false !== stripos( $user_prompt, 'calendar' ) || false !== stripos( $user_prompt, 'venue' ) || false !== stripos( $user_prompt, 'speaker' ) ) {
+			return $this->events_calendar();
+		}
+
 		if ( false !== stripos( $user_prompt, 'restaurant' ) || false !== stripos( $user_prompt, 'menu' ) || false !== stripos( $user_prompt, 'dish' ) ) {
 			return $this->restaurant_menu();
 		}
@@ -132,6 +136,68 @@ class Mock_Provider implements AI_Provider_Interface, AI_Model_Provider_Interfac
 					'content'    => 'Design polished product workflows for a growing software team.',
 					'fields'     => array( 'salary_range' => '$100,000 - $130,000', 'remote_option' => 'Hybrid', 'application_deadline' => '2026-06-30', 'application_url' => 'https://example.com/apply', 'featured_job' => '1' ),
 					'taxonomies' => array( 'company' => array( 'Acme Studio' ), 'job_location' => array( 'New York' ), 'employment_type' => array( 'Full Time' ) ),
+				),
+			),
+		);
+	}
+
+	private function events_calendar(): array {
+		return array(
+			'model_name'        => 'Events Calendar',
+			'description'       => 'A structured content model for events with dates, venues, speakers, ticket links, and event classification.',
+			'intended_use_case' => 'Publish upcoming events and let visitors browse by event type, venue, and speaker.',
+			'warnings'          => array( 'Speakers and venues may become related custom post types in a later relationship-focused version.' ),
+			'custom_post_types' => array(
+				array(
+					'key'            => 'event',
+					'singular_label' => 'Event',
+					'plural_label'   => 'Events',
+					'slug'           => 'events',
+					'menu_icon'      => 'dashicons-calendar-alt',
+					'public'         => true,
+					'has_archive'    => true,
+					'show_in_rest'   => true,
+					'hierarchical'   => false,
+					'supports'       => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+				),
+			),
+			'taxonomies'        => array(
+				array( 'key' => 'event_type', 'singular_label' => 'Event Type', 'plural_label' => 'Event Types', 'slug' => 'event-type', 'post_types' => array( 'event' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'venue', 'singular_label' => 'Venue', 'plural_label' => 'Venues', 'slug' => 'venue', 'post_types' => array( 'event' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'speaker', 'singular_label' => 'Speaker', 'plural_label' => 'Speakers', 'slug' => 'speaker', 'post_types' => array( 'event' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+			),
+			'fields'            => array(
+				array( 'key' => 'event_start_date', 'label' => 'Start Date', 'type' => 'date', 'post_type' => 'event', 'required' => true, 'placeholder' => 'YYYY-MM-DD', 'help_text' => 'Event start date.', 'default' => '' ),
+				array( 'key' => 'event_end_date', 'label' => 'End Date', 'type' => 'date', 'post_type' => 'event', 'required' => false, 'placeholder' => 'YYYY-MM-DD', 'help_text' => 'Optional end date for multi-day events.', 'default' => '' ),
+				array( 'key' => 'start_time', 'label' => 'Start Time', 'type' => 'text', 'post_type' => 'event', 'required' => false, 'placeholder' => '18:00', 'help_text' => 'Human-readable start time.', 'default' => '' ),
+				array( 'key' => 'ticket_url', 'label' => 'Ticket URL', 'type' => 'url', 'post_type' => 'event', 'required' => false, 'placeholder' => 'https://example.com/tickets', 'help_text' => 'External ticket or registration link.', 'default' => '' ),
+				array( 'key' => 'event_price', 'label' => 'Ticket Price', 'type' => 'text', 'post_type' => 'event', 'required' => false, 'placeholder' => 'Free or $25', 'help_text' => 'Display price or free-entry note.', 'default' => '' ),
+				array( 'key' => 'featured_event', 'label' => 'Featured Event', 'type' => 'checkbox', 'post_type' => 'event', 'required' => false, 'placeholder' => '', 'help_text' => 'Feature this event.', 'default' => false ),
+			),
+			'admin_columns'     => array(
+				array(
+					'post_type' => 'event',
+					'columns'   => array(
+						array( 'key' => 'event_start_date', 'label' => 'Start Date', 'source' => 'field', 'source_key' => 'event_start_date', 'sortable' => true ),
+						array( 'key' => 'venue', 'label' => 'Venue', 'source' => 'taxonomy', 'source_key' => 'venue', 'sortable' => false ),
+						array( 'key' => 'event_type', 'label' => 'Type', 'source' => 'taxonomy', 'source_key' => 'event_type', 'sortable' => false ),
+					),
+				),
+			),
+			'templates'         => array(
+				array(
+					'post_type'      => 'event',
+					'single_layout'  => 'Display event image, title, date, time, venue, speakers, event type, description, ticket price, and registration button.',
+					'archive_layout' => 'Display upcoming events as cards with image, title, date, venue, event type, and ticket link.',
+				),
+			),
+			'sample_content'    => array(
+				array(
+					'post_type'  => 'event',
+					'title'      => 'Product Strategy Summit',
+					'content'    => 'A focused evening event about product positioning, growth loops, and customer research.',
+					'fields'     => array( 'event_start_date' => '2026-07-15', 'event_end_date' => '', 'start_time' => '18:00', 'ticket_url' => 'https://example.com/tickets', 'event_price' => '$25', 'featured_event' => '1' ),
+					'taxonomies' => array( 'event_type' => array( 'Conference' ), 'venue' => array( 'Innovation Hall' ), 'speaker' => array( 'Mara Chen' ) ),
 				),
 			),
 		);
