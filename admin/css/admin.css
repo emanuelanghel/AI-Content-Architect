@@ -438,6 +438,12 @@
 	display: block;
 }
 
+.aica-settings-form.is-provider-mock .aica-api-key-row,
+.aica-settings-form.is-provider-mock .aica-base-url-row,
+.aica-settings-form.is-provider-mock .aica-model-row {
+	display: none;
+}
+
 .aica-provider-badge {
 	background: #ecfdf5;
 	border: 1px solid #a7f3d0;

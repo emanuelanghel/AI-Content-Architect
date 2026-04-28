@@ -8,6 +8,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$is_mock_provider = 'mock' === (string) ( $settings['provider'] ?? 'mock' );
 ?>
 <div class="wrap aica-wrap">
 	<div class="aica-app-shell">
@@ -44,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php endif; ?>
 			</div>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="aica-panel">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="aica-panel aica-settings-form <?php echo esc_attr( $is_mock_provider ? 'is-provider-mock' : '' ); ?>">
 				<?php wp_nonce_field( 'aica_admin' ); ?>
 				<input type="hidden" name="action" value="aica_save_settings">
 				<table class="form-table" role="presentation">
