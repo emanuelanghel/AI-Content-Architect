@@ -13,6 +13,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Mock_Provider implements AI_Provider_Interface, AI_Model_Provider_Interface {
 	public function generate_content_model( string $user_prompt ): array {
+		if ( false !== stripos( $user_prompt, 'course' ) || false !== stripos( $user_prompt, 'lesson' ) || false !== stripos( $user_prompt, 'instructor' ) ) {
+			return $this->course_library();
+		}
+
+		if ( false !== stripos( $user_prompt, 'documentation' ) || false !== stripos( $user_prompt, 'resource' ) || false !== stripos( $user_prompt, 'article' ) ) {
+			return $this->documentation_hub();
+		}
+
+		if ( false !== stripos( $user_prompt, 'event' ) || false !== stripos( $user_prompt, 'calendar' ) || false !== stripos( $user_prompt, 'venue' ) || false !== stripos( $user_prompt, 'speaker' ) ) {
+			return $this->events_calendar();
+		}
+
 		if ( false !== stripos( $user_prompt, 'restaurant' ) || false !== stripos( $user_prompt, 'menu' ) || false !== stripos( $user_prompt, 'dish' ) ) {
 			return $this->restaurant_menu();
 		}
@@ -132,6 +144,190 @@ class Mock_Provider implements AI_Provider_Interface, AI_Model_Provider_Interfac
 					'content'    => 'Design polished product workflows for a growing software team.',
 					'fields'     => array( 'salary_range' => '$100,000 - $130,000', 'remote_option' => 'Hybrid', 'application_deadline' => '2026-06-30', 'application_url' => 'https://example.com/apply', 'featured_job' => '1' ),
 					'taxonomies' => array( 'company' => array( 'Acme Studio' ), 'job_location' => array( 'New York' ), 'employment_type' => array( 'Full Time' ) ),
+				),
+			),
+		);
+	}
+
+	private function course_library(): array {
+		return array(
+			'model_name'        => 'Course Library',
+			'description'       => 'A structured content model for courses with instructors, topics, difficulty levels, lessons, duration, and enrollment links.',
+			'intended_use_case' => 'Publish and organize a searchable course catalog for learners.',
+			'warnings'          => array( 'Lessons may become a separate related content type in a later relationship-focused version.' ),
+			'custom_post_types' => array(
+				array(
+					'key'            => 'course',
+					'singular_label' => 'Course',
+					'plural_label'   => 'Courses',
+					'slug'           => 'courses',
+					'menu_icon'      => 'dashicons-welcome-learn-more',
+					'public'         => true,
+					'has_archive'    => true,
+					'show_in_rest'   => true,
+					'hierarchical'   => false,
+					'supports'       => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+				),
+			),
+			'taxonomies'        => array(
+				array( 'key' => 'course_topic', 'singular_label' => 'Topic', 'plural_label' => 'Topics', 'slug' => 'course-topic', 'post_types' => array( 'course' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'difficulty_level', 'singular_label' => 'Difficulty Level', 'plural_label' => 'Difficulty Levels', 'slug' => 'difficulty-level', 'post_types' => array( 'course' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'instructor', 'singular_label' => 'Instructor', 'plural_label' => 'Instructors', 'slug' => 'instructor', 'post_types' => array( 'course' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+			),
+			'fields'            => array(
+				array( 'key' => 'course_duration', 'label' => 'Course Duration', 'type' => 'text', 'post_type' => 'course', 'required' => false, 'placeholder' => '6 hours', 'help_text' => 'Estimated total course duration.', 'default' => '' ),
+				array( 'key' => 'lesson_count', 'label' => 'Lesson Count', 'type' => 'number', 'post_type' => 'course', 'required' => false, 'placeholder' => '12', 'help_text' => 'Number of lessons in the course.', 'default' => '' ),
+				array( 'key' => 'enrollment_url', 'label' => 'Enrollment URL', 'type' => 'url', 'post_type' => 'course', 'required' => false, 'placeholder' => 'https://example.com/enroll', 'help_text' => 'External enrollment or checkout link.', 'default' => '' ),
+				array( 'key' => 'course_price', 'label' => 'Course Price', 'type' => 'text', 'post_type' => 'course', 'required' => false, 'placeholder' => 'Free or $99', 'help_text' => 'Display price or free course note.', 'default' => '' ),
+				array( 'key' => 'featured_course', 'label' => 'Featured Course', 'type' => 'checkbox', 'post_type' => 'course', 'required' => false, 'placeholder' => '', 'help_text' => 'Feature this course.', 'default' => false ),
+			),
+			'admin_columns'     => array(
+				array(
+					'post_type' => 'course',
+					'columns'   => array(
+						array( 'key' => 'course_duration', 'label' => 'Duration', 'source' => 'field', 'source_key' => 'course_duration', 'sortable' => false ),
+						array( 'key' => 'course_topic', 'label' => 'Topic', 'source' => 'taxonomy', 'source_key' => 'course_topic', 'sortable' => false ),
+						array( 'key' => 'difficulty_level', 'label' => 'Difficulty', 'source' => 'taxonomy', 'source_key' => 'difficulty_level', 'sortable' => false ),
+					),
+				),
+			),
+			'templates'         => array(
+				array(
+					'post_type'      => 'course',
+					'single_layout'  => 'Display course image, title, overview, instructor, topic, difficulty, duration, lesson count, price, and enrollment button.',
+					'archive_layout' => 'Display course cards with image, title, topic, difficulty, duration, price, and enrollment link.',
+				),
+			),
+			'sample_content'    => array(
+				array(
+					'post_type'  => 'course',
+					'title'      => 'Content Strategy Foundations',
+					'content'    => 'Learn how to structure content systems, reusable sections, and editorial workflows.',
+					'fields'     => array( 'course_duration' => '6 hours', 'lesson_count' => '14', 'enrollment_url' => 'https://example.com/enroll', 'course_price' => '$99', 'featured_course' => '1' ),
+					'taxonomies' => array( 'course_topic' => array( 'Content Strategy' ), 'difficulty_level' => array( 'Beginner' ), 'instructor' => array( 'Ana Popescu' ) ),
+				),
+			),
+		);
+	}
+
+	private function documentation_hub(): array {
+		return array(
+			'model_name'        => 'Documentation Hub',
+			'description'       => 'A structured content model for documentation articles, resource types, product areas, difficulty, and reading time.',
+			'intended_use_case' => 'Publish a searchable resource hub for documentation, guides, tutorials, and reference material.',
+			'warnings'          => array( 'For large documentation sites, product areas may later need ownership or versioning metadata.' ),
+			'custom_post_types' => array(
+				array(
+					'key'            => 'resource',
+					'singular_label' => 'Resource',
+					'plural_label'   => 'Resources',
+					'slug'           => 'resources',
+					'menu_icon'      => 'dashicons-media-document',
+					'public'         => true,
+					'has_archive'    => true,
+					'show_in_rest'   => true,
+					'hierarchical'   => false,
+					'supports'       => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+				),
+			),
+			'taxonomies'        => array(
+				array( 'key' => 'resource_type', 'singular_label' => 'Resource Type', 'plural_label' => 'Resource Types', 'slug' => 'resource-type', 'post_types' => array( 'resource' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'product_area', 'singular_label' => 'Product Area', 'plural_label' => 'Product Areas', 'slug' => 'product-area', 'post_types' => array( 'resource' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'resource_topic', 'singular_label' => 'Topic', 'plural_label' => 'Topics', 'slug' => 'resource-topic', 'post_types' => array( 'resource' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+			),
+			'fields'            => array(
+				array( 'key' => 'reading_time', 'label' => 'Reading Time', 'type' => 'text', 'post_type' => 'resource', 'required' => false, 'placeholder' => '8 minutes', 'help_text' => 'Estimated reading time.', 'default' => '' ),
+				array( 'key' => 'difficulty', 'label' => 'Difficulty', 'type' => 'select', 'post_type' => 'resource', 'required' => false, 'placeholder' => '', 'help_text' => 'Audience skill level.', 'default' => 'Beginner', 'options' => array( 'Beginner', 'Intermediate', 'Advanced' ) ),
+				array( 'key' => 'external_url', 'label' => 'External URL', 'type' => 'url', 'post_type' => 'resource', 'required' => false, 'placeholder' => 'https://example.com/resource', 'help_text' => 'Optional external resource link.', 'default' => '' ),
+				array( 'key' => 'last_reviewed', 'label' => 'Last Reviewed', 'type' => 'date', 'post_type' => 'resource', 'required' => false, 'placeholder' => 'YYYY-MM-DD', 'help_text' => 'Date this resource was last reviewed.', 'default' => '' ),
+				array( 'key' => 'featured_resource', 'label' => 'Featured Resource', 'type' => 'checkbox', 'post_type' => 'resource', 'required' => false, 'placeholder' => '', 'help_text' => 'Feature this resource.', 'default' => false ),
+			),
+			'admin_columns'     => array(
+				array(
+					'post_type' => 'resource',
+					'columns'   => array(
+						array( 'key' => 'resource_type', 'label' => 'Type', 'source' => 'taxonomy', 'source_key' => 'resource_type', 'sortable' => false ),
+						array( 'key' => 'product_area', 'label' => 'Product Area', 'source' => 'taxonomy', 'source_key' => 'product_area', 'sortable' => false ),
+						array( 'key' => 'reading_time', 'label' => 'Reading Time', 'source' => 'field', 'source_key' => 'reading_time', 'sortable' => false ),
+					),
+				),
+			),
+			'templates'         => array(
+				array(
+					'post_type'      => 'resource',
+					'single_layout'  => 'Display resource title, type, product area, difficulty, reading time, last reviewed date, content, and related topics.',
+					'archive_layout' => 'Display resource cards with title, type, product area, difficulty, reading time, and featured state.',
+				),
+			),
+			'sample_content'    => array(
+				array(
+					'post_type'  => 'resource',
+					'title'      => 'Getting Started With Content Models',
+					'content'    => 'A practical guide to planning custom post types, taxonomies, and reusable fields.',
+					'fields'     => array( 'reading_time' => '8 minutes', 'difficulty' => 'Beginner', 'external_url' => '', 'last_reviewed' => '2026-04-28', 'featured_resource' => '1' ),
+					'taxonomies' => array( 'resource_type' => array( 'Guide' ), 'product_area' => array( 'Content Architecture' ), 'resource_topic' => array( 'Planning', 'WordPress' ) ),
+				),
+			),
+		);
+	}
+
+	private function events_calendar(): array {
+		return array(
+			'model_name'        => 'Events Calendar',
+			'description'       => 'A structured content model for events with dates, venues, speakers, ticket links, and event classification.',
+			'intended_use_case' => 'Publish upcoming events and let visitors browse by event type, venue, and speaker.',
+			'warnings'          => array( 'Speakers and venues may become related custom post types in a later relationship-focused version.' ),
+			'custom_post_types' => array(
+				array(
+					'key'            => 'event',
+					'singular_label' => 'Event',
+					'plural_label'   => 'Events',
+					'slug'           => 'events',
+					'menu_icon'      => 'dashicons-calendar-alt',
+					'public'         => true,
+					'has_archive'    => true,
+					'show_in_rest'   => true,
+					'hierarchical'   => false,
+					'supports'       => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+				),
+			),
+			'taxonomies'        => array(
+				array( 'key' => 'event_type', 'singular_label' => 'Event Type', 'plural_label' => 'Event Types', 'slug' => 'event-type', 'post_types' => array( 'event' ), 'hierarchical' => true, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'venue', 'singular_label' => 'Venue', 'plural_label' => 'Venues', 'slug' => 'venue', 'post_types' => array( 'event' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+				array( 'key' => 'speaker', 'singular_label' => 'Speaker', 'plural_label' => 'Speakers', 'slug' => 'speaker', 'post_types' => array( 'event' ), 'hierarchical' => false, 'public' => true, 'show_in_rest' => true ),
+			),
+			'fields'            => array(
+				array( 'key' => 'event_start_date', 'label' => 'Start Date', 'type' => 'date', 'post_type' => 'event', 'required' => true, 'placeholder' => 'YYYY-MM-DD', 'help_text' => 'Event start date.', 'default' => '' ),
+				array( 'key' => 'event_end_date', 'label' => 'End Date', 'type' => 'date', 'post_type' => 'event', 'required' => false, 'placeholder' => 'YYYY-MM-DD', 'help_text' => 'Optional end date for multi-day events.', 'default' => '' ),
+				array( 'key' => 'start_time', 'label' => 'Start Time', 'type' => 'text', 'post_type' => 'event', 'required' => false, 'placeholder' => '18:00', 'help_text' => 'Human-readable start time.', 'default' => '' ),
+				array( 'key' => 'ticket_url', 'label' => 'Ticket URL', 'type' => 'url', 'post_type' => 'event', 'required' => false, 'placeholder' => 'https://example.com/tickets', 'help_text' => 'External ticket or registration link.', 'default' => '' ),
+				array( 'key' => 'event_price', 'label' => 'Ticket Price', 'type' => 'text', 'post_type' => 'event', 'required' => false, 'placeholder' => 'Free or $25', 'help_text' => 'Display price or free-entry note.', 'default' => '' ),
+				array( 'key' => 'featured_event', 'label' => 'Featured Event', 'type' => 'checkbox', 'post_type' => 'event', 'required' => false, 'placeholder' => '', 'help_text' => 'Feature this event.', 'default' => false ),
+			),
+			'admin_columns'     => array(
+				array(
+					'post_type' => 'event',
+					'columns'   => array(
+						array( 'key' => 'event_start_date', 'label' => 'Start Date', 'source' => 'field', 'source_key' => 'event_start_date', 'sortable' => true ),
+						array( 'key' => 'venue', 'label' => 'Venue', 'source' => 'taxonomy', 'source_key' => 'venue', 'sortable' => false ),
+						array( 'key' => 'event_type', 'label' => 'Type', 'source' => 'taxonomy', 'source_key' => 'event_type', 'sortable' => false ),
+					),
+				),
+			),
+			'templates'         => array(
+				array(
+					'post_type'      => 'event',
+					'single_layout'  => 'Display event image, title, date, time, venue, speakers, event type, description, ticket price, and registration button.',
+					'archive_layout' => 'Display upcoming events as cards with image, title, date, venue, event type, and ticket link.',
+				),
+			),
+			'sample_content'    => array(
+				array(
+					'post_type'  => 'event',
+					'title'      => 'Product Strategy Summit',
+					'content'    => 'A focused evening event about product positioning, growth loops, and customer research.',
+					'fields'     => array( 'event_start_date' => '2026-07-15', 'event_end_date' => '', 'start_time' => '18:00', 'ticket_url' => 'https://example.com/tickets', 'event_price' => '$25', 'featured_event' => '1' ),
+					'taxonomies' => array( 'event_type' => array( 'Conference' ), 'venue' => array( 'Innovation Hall' ), 'speaker' => array( 'Mara Chen' ) ),
 				),
 			),
 		);

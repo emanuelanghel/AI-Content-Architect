@@ -161,6 +161,7 @@
 		var $selected = $('#aica_provider option:selected');
 		var useCustom = $('#aica_use_custom_model').is(':checked');
 
+		$('.aica-settings-form').toggleClass('is-provider-mock', provider === 'mock');
 		$('.aica-provider-description').removeClass('is-active').filter('[data-provider="' + provider + '"]').addClass('is-active');
 		$('.aica-provider-badge').toggleClass('is-active', provider === 'mock');
 		$('.aica-api-key-row, .aica-base-url-row, .aica-model-row').toggle(provider !== 'mock');
